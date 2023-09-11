@@ -1,0 +1,10 @@
+Go to the project directory, and run the bash script. You can immediately pass the name of the directory with images to the bash script, or simply run it, and then specify the necessary arguments.
+
+For example:
+./wheat_wrapper.sh image_example result_example 4
+or
+./wheat_wrapper.sh
+
+Detection model: https://github.com/kiteiru/nsu-diploma-wheat/releases/tag/v1.0.0
+Authhor of segmentation model: Artemenko Nikita
+Author of feature extracting: Evgeny Komyshev

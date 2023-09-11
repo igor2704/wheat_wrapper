@@ -1,0 +1,44 @@
+To run unet_tiled_infer.py:
+
+source .venv/bin/activate
+
+
+To run werecognizer:
+
+Usage: java -jar werecognizer.jar input-dir|file [--out output-dir] [options]
+
+Example: java -jar werecognizer.jar input/img.jpg --out output/ -d --unet
+
+Options:
+
+-o, --out					set output directory
+
+-p, --prefix				set the prefix of the output files
+
+-un, --unet					use the unet model segmentation
+
+-d, --draw					mark recognized objects on the output image
+
+
+-cm, --cmark				draw output color segmentation	image
+
+-bm, --bmasks				draw output binary segmentation images
+
+-ms, --markspikelets		mark spikelets on segmentation images
+
+-sw, --spikeletswidth		set the width of the spikelet marks
+
+-sh, --spikeletsheight		set the height of the spikelet marks
+
+
+-bgc, --backgroundcolor		set the background color on the segmentation image
+
+-ccc, --colorcheckercolor	set the colorchecker color on the segmentation image
+
+-ec, --earcolor				set the ear color on the segmentation image
+
+-ac, --awnscolor			set the awns color on the segmentation image
+
+When using --unet option the input images must have a jpg extension.
+Masks must be located in the same directory and have the same name but with the png extension.
+
