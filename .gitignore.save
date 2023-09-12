@@ -1,0 +1,7 @@
+*.ipynb_checkpoints 
+*__pycache__*
+.git
+# Nikita segmentation model
+model_efficientnet-b2.bin
+/segmentation/tiling_options.yaml
+/pubescence

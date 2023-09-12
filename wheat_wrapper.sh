@@ -1,5 +1,8 @@
 #! /bin/bash
 
+eval "$(conda shell.bash hook)"
+conda activate igbus_env
+
 if [[ "$#" -eq 3 ]]
 then
 	in_path="$1"
@@ -32,6 +35,12 @@ fi
 
 in_path=`realpath "${in_path}"`
 out_path=`realpath "${out_path}"`
+
+path=`pwd`
+python3 create_working_dir.py "$in_path" "$dir_count" "$out_path"
+working_path=`realpath "working_dir"`
+
+python3 start_timer.py "${working_path}/global_timer.pkl"
 
 let "i = 1"
 while [[ $i -le $dir_count ]]
@@ -67,15 +76,12 @@ do
 done
 wait
 
-path=`pwd`
-python3 create_working_dir.py "$in_path" "$dir_count" "$out_path"
-working_path=`realpath "working_dir"`
-
 echo ""
 echo "############################"
 echo "calculate segmentation masks"
 echo "############################"
 echo ""
+python3 start_timer.py "${working_path}/segmentation_timer.pkl"
 cd "${path}/segmentation"
 let "i = 1"
 while [[ $i -le $dir_count ]]
@@ -85,6 +91,11 @@ do
 done
 wait
 
+cd "$path"
+python3 stop_timer.py "${working_path}/segmentation_timer.pkl" "segmentation time: "
+sleep 2
+
+python3 start_timer.py "${working_path}/detection_timer.pkl"
 cd "${path}/detection"
 echo ''
 echo "#########################"
@@ -94,12 +105,14 @@ echo ''
 let "i = 1"
 while [[ $i -le $dir_count ]]
 do
-    python3 wrapper_lerok.py "${working_path}/${i}" "${out_path}/${i}/detection" "${out_path}/${i}/image_wheat_masks" "final_model_circles.pt" &
+    python3 wrapper_lerok.py "${working_path}/${i}" "${out_path}/${i}/detection" "${out_path}/${i}/image_wheat_masks" "circles.pt" &
     let "i++"
 done
 wait
 
 cd "$path"
+python3 stop_timer.py "${working_path}/detection_timer.pkl" "detection time: "
+
 let "i = 1"
 while [[ $i -le $dir_count ]]
 do
@@ -117,6 +130,7 @@ do
 done
 wait
 
+python3 start_timer.py "${working_path}/extract_features_timer.pkl"
 cd "${path}/feature_extracting"
 echo ''
 echo "################"
@@ -132,7 +146,10 @@ let "i++"
 done
 wait
     
-cd "${path}"
+cd "$path"
+python3 stop_timer.py "${working_path}/extract_features_timer.pkl" "extracting features time: "
+python3 start_timer.py "${working_path}/calculate_biomass.pkl"
+
 echo ''
 echo "#################"
 echo "calculate_biomass"
@@ -147,15 +164,21 @@ do
     let "i++"
 done
 wait
+python3 stop_timer.py "${working_path}/calculate_biomass.pkl" "calculating biomass time: "
 
-cd "${path}"
+cd "$path"
 python3 glue_streams.py "$out_path" "$dir_count"
 python3 merge_tables.py "$out_path"
-rm -r "$working_path"
 
+python3 start_timer.py "${working_path}/search_outliers.pkl"
 echo ''
 echo "###############"
 echo "search outliers"
 echo "###############"
 echo ''
 python3 find_outliers.py "${out_path}/all_featurs.csv" "${out_path}/outliers_feauters.csv" "0.998"
+python3 stop_timer.py "${working_path}/search_outliers.pkl" "searching outliers time: "
+
+python3 stop_timer.py "${working_path}/global_timer.pkl" "total time: "
+
+rm -r "$working_path"

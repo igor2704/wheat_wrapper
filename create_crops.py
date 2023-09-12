@@ -17,12 +17,12 @@ def get_all_jpg_files(path: str) -> tp.Iterator[str]:
                 continue
             yield os.path.join(dirname, name)
 
-def get_crop(mask: np.ndarray) -> np.ndarray:
+def get_crop(mask: np.ndarray, eps: int = 100) -> np.ndarray:
     mask_nonzero_x, mask_nonzero_y = np.nonzero(mask)
-    d_cr = int(np.max((np.min(mask_nonzero_x), 0)))
-    l_cr = int(np.max((np.min(mask_nonzero_y), 0)))
-    u_cr = int(np.min((np.max(mask_nonzero_x), mask.shape[0] - 1)))
-    r_cr = int(np.min((np.max(mask_nonzero_y), mask.shape[1] - 1)))
+    d_cr = int(np.max((np.min(mask_nonzero_x) - eps, 0)))
+    l_cr = int(np.max((np.min(mask_nonzero_y) - eps, 0)))
+    u_cr = int(np.min((np.max(mask_nonzero_x) + eps, mask.shape[0] - 1)))
+    r_cr = int(np.min((np.max(mask_nonzero_y) + eps, mask.shape[1] - 1)))
     return d_cr, u_cr, l_cr, r_cr
 
 # def get_crops(img_folder_path: str,
@@ -103,7 +103,7 @@ def cropping_and_resizing(img_folder_path: str,
         d_cr, u_cr, l_cr, r_cr = get_crop(np.sum([max_contour_mask[:, :, i] for i in range(3)], axis=0))
         img = img[d_cr:u_cr, l_cr:r_cr, :]
 
-        img = cv2.resize(img, size)
+        # img = cv2.resize(img, size)
         
         img_lst.append(img)
         name_lst.append(name)
