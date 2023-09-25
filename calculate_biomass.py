@@ -23,11 +23,6 @@ def get_biomass_max_contour(mask: np.ndarray) -> float:
     new_mask = np.where(mask > 0, 1, 0) * get_max_contour_mask(mask)
     return np.sum(new_mask)
 
-# def get_wheat_spikelets_biomass(mask: np.ndarray) -> float:
-#     colorchecker_biomass = get_biomass_max_contour(mask[:, :, 0])
-#     spikelets_biomass = get_biomass_max_contour(mask[:, :, 1])
-#     return spikelets_biomass / colorchecker_biomass
-
 def main():
     _, in_path, out_path = argv
     biomass_lst = list()
@@ -37,6 +32,7 @@ def main():
         wheat_mask = mask[:, :, 1] + mask[:, :, 2]
         biomass_wheat = np.sum(np.where(wheat_mask > 0, 1, 0)) / biomass_colorchecker
         biomass_spikelet = get_biomass_max_contour(mask[:, :, 1]) / biomass_colorchecker
+        biomass_colorchecker /= mask.shape[0] * mask.shape[1]
         biomass_lst.append((name.split('/')[-1].split('.')[0], 
                             biomass_colorchecker, biomass_spikelet, biomass_wheat))
     pd.DataFrame(biomass_lst, columns=['Name', 

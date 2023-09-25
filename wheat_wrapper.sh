@@ -86,7 +86,7 @@ cd "${path}/segmentation"
 let "i = 1"
 while [[ $i -le $dir_count ]]
 do
-    ./infer -bone efficientnet-b2 -mn "model_efficientnet-b2.bin" --cuda --verbose -bs 32 -dp "${working_path}/${i}" -op "${out_path}/${i}/image_wheat_masks"
+    ./infer -bone efficientnet-b2 -mn "model_efficientnet-b2.bin" --verbose --cuda -bs 32 -dp "${working_path}/${i}" -op "${out_path}/${i}/image_wheat_masks"
     let "i++"
 done
 wait
@@ -105,11 +105,10 @@ echo ''
 let "i = 1"
 while [[ $i -le $dir_count ]]
 do
-    python3 wrapper_lerok.py "${working_path}/${i}" "${out_path}/${i}/detection" "${out_path}/${i}/image_wheat_masks" "circles.pt" &
+    python3 wrapper_lerok.py "${working_path}/${i}" "${out_path}/${i}/detection" "${out_path}/${i}/image_wheat_masks" "circles_2.pt" &
     let "i++"
 done
 wait
-
 cd "$path"
 python3 stop_timer.py "${working_path}/detection_timer.pkl" "detection time: "
 
@@ -129,6 +128,23 @@ do
     let "i++"
 done
 wait
+
+python3 start_timer.py "${working_path}/pubescence.pkl"
+cd "${path}/pubescence/Glume-pubescence-prediction-of-spikelets-main"
+echo ''
+echo "########################"
+echo "predict glume pubescence"
+echo "########################"
+echo ''
+let "i = 1"
+while [[ $i -le $dir_count ]]
+do
+    python3 Nikita_wrapper.py "EfficientNet-B1.zip" "${working_path}/${i}" "${out_path}/${i}" &
+    let "i++"
+done
+wait
+cd "$path"
+python3 stop_timer.py "${working_path}/pubescence.pkl" "predict glume pubescence time: "
 
 python3 start_timer.py "${working_path}/extract_features_timer.pkl"
 cd "${path}/feature_extracting"

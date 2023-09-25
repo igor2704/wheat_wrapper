@@ -27,7 +27,7 @@ def processing(df: pd.DataFrame) -> None:
             
 def main():
     _, path, dir_count = argv
-    table_path_no_sep = ['detection/spikelets_count.csv', 'image_wheat_masks/biomass.csv']
+    table_path_no_sep = ['detection/spikelets_count.csv', 'image_wheat_masks/biomass.csv', 'glume_pubescence.csv']
     table_path_sep = ['features/colorDescriptors.csv', 'features/commonResults.csv', 
                       'features/quadrangleResults.csv']
     other_tables = ['features/profileResults.csv', 'features/radialResults.csv']
